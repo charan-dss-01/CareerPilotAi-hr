@@ -69,12 +69,20 @@ export default function CandidateApplicationsPage() {
   // Candidate analytics
   const analytics = useMemo(() => {
     const total = applications.length;
-    const shortlisted = applications.filter(
-      (a) => ["shortlisted", "interview_invited", "interview_accepted", "interview_completed", "human_round_scheduled", "selected"].includes(a.status)
+    const shortlisted = applications.filter((a) =>
+      [
+        "shortlisted",
+        "interview_invited",
+        "interview_accepted",
+        "interview_completed",
+        "human_round_scheduled",
+        "selected",
+      ].includes(a.status),
     ).length;
     const rejected = applications.filter((a) => a.status === "rejected").length;
     const selected = applications.filter((a) => a.status === "selected").length;
-    const shortlistRate = total > 0 ? Math.round((shortlisted / total) * 100) : 0;
+    const shortlistRate =
+      total > 0 ? Math.round((shortlisted / total) * 100) : 0;
 
     return { total, shortlisted, rejected, selected, shortlistRate };
   }, [applications]);
@@ -82,9 +90,21 @@ export default function CandidateApplicationsPage() {
   // Tab filtering
   const filteredApps = useMemo(() => {
     if (activeTab === "all") return applications;
-    if (activeTab === "shortlisted") return applications.filter((a) => ["shortlisted", "interview_invited", "interview_accepted", "interview_completed", "human_round_scheduled", "selected"].includes(a.status));
-    if (activeTab === "rejected") return applications.filter((a) => a.status === "rejected");
-    if (activeTab === "withdrawn") return applications.filter((a) => a.status === "withdrawn");
+    if (activeTab === "shortlisted")
+      return applications.filter((a) =>
+        [
+          "shortlisted",
+          "interview_invited",
+          "interview_accepted",
+          "interview_completed",
+          "human_round_scheduled",
+          "selected",
+        ].includes(a.status),
+      );
+    if (activeTab === "rejected")
+      return applications.filter((a) => a.status === "rejected");
+    if (activeTab === "withdrawn")
+      return applications.filter((a) => a.status === "withdrawn");
     return applications;
   }, [applications, activeTab]);
 
@@ -92,7 +112,14 @@ export default function CandidateApplicationsPage() {
   const getStageIndex = (status) => {
     if (status === "selected") return 4;
     if (status === "human_round_scheduled") return 3;
-    if (["interview_invited", "interview_accepted", "interview_completed"].includes(status)) return 2;
+    if (
+      [
+        "interview_invited",
+        "interview_accepted",
+        "interview_completed",
+      ].includes(status)
+    )
+      return 2;
     if (status === "shortlisted") return 1;
     return 0; // applied, under_review, etc.
   };
@@ -101,7 +128,14 @@ export default function CandidateApplicationsPage() {
     if (status === "selected") return "text-emerald-400";
     if (status === "rejected") return "text-red-400";
     if (status === "withdrawn") return "text-gray-400";
-    if (["interview_invited", "interview_accepted", "interview_completed"].includes(status)) return "text-purple-400";
+    if (
+      [
+        "interview_invited",
+        "interview_accepted",
+        "interview_completed",
+      ].includes(status)
+    )
+      return "text-purple-400";
     if (status === "human_round_scheduled") return "text-amber-400";
     if (status === "shortlisted") return "text-teal-400";
     return "text-blue-400";
@@ -119,7 +153,8 @@ export default function CandidateApplicationsPage() {
           My Applications
         </h1>
         <p className="text-muted-foreground text-sm">
-          Track your job applications, view screening results, and monitor interview progress
+          Track your job applications, view screening results, and monitor
+          interview progress
         </p>
       </div>
 
@@ -127,32 +162,52 @@ export default function CandidateApplicationsPage() {
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         <Card className="glass border-white/[0.08]">
           <CardContent className="p-4 text-center">
-            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider block mb-1">Applied</span>
-            <span className="text-2xl font-bold tracking-tight">{analytics.total}</span>
+            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider block mb-1 mt-2">
+              Applied
+            </span>
+            <span className="text-2xl font-bold tracking-tight">
+              {analytics.total}
+            </span>
           </CardContent>
         </Card>
         <Card className="glass border-white/[0.08]">
           <CardContent className="p-4 text-center">
-            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider block mb-1">Shortlisted</span>
-            <span className="text-2xl font-bold text-teal-400 tracking-tight">{analytics.shortlisted}</span>
+            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider block mb-1 mt-2">
+              Shortlisted
+            </span>
+            <span className="text-2xl font-bold text-teal-400 tracking-tight">
+              {analytics.shortlisted}
+            </span>
           </CardContent>
         </Card>
         <Card className="glass border-white/[0.08]">
           <CardContent className="p-4 text-center">
-            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider block mb-1">Rejected</span>
-            <span className="text-2xl font-bold text-red-400 tracking-tight">{analytics.rejected}</span>
+            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider block mb-1 mt-2">
+              Rejected
+            </span>
+            <span className="text-2xl font-bold text-red-400 tracking-tight">
+              {analytics.rejected}
+            </span>
           </CardContent>
         </Card>
         <Card className="glass border-white/[0.08]">
           <CardContent className="p-4 text-center">
-            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider block mb-1">Selected</span>
-            <span className="text-2xl font-bold text-emerald-400 tracking-tight">{analytics.selected}</span>
+            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider block mb-1 mt-2">
+              Selected
+            </span>
+            <span className="text-2xl font-bold text-emerald-400 tracking-tight">
+              {analytics.selected}
+            </span>
           </CardContent>
         </Card>
         <Card className="glass border-white/[0.08]">
           <CardContent className="p-4 text-center">
-            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider block mb-1">Shortlist Rate</span>
-            <span className="text-2xl font-bold text-purple-400 tracking-tight">{analytics.shortlistRate}%</span>
+            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider block mb-1 mt-2">
+              Shortlist Rate
+            </span>
+            <span className="text-2xl font-bold text-purple-400 tracking-tight">
+              {analytics.shortlistRate}%
+            </span>
           </CardContent>
         </Card>
       </div>
@@ -188,9 +243,12 @@ export default function CandidateApplicationsPage() {
         <Card className="glass border-dashed border-white/[0.08] py-16 text-center">
           <CardContent className="flex flex-col items-center justify-center max-w-md mx-auto space-y-4">
             <ClipboardList className="w-12 h-12 text-muted-foreground" />
-            <h3 className="text-xl font-bold tracking-tight">No Applications Yet</h3>
+            <h3 className="text-xl font-bold tracking-tight">
+              No Applications Yet
+            </h3>
             <p className="text-muted-foreground text-sm">
-              Start applying to job openings from the Browse Jobs page. Your deterministic screening results will appear here instantly.
+              Start applying to job openings from the Browse Jobs page. Your
+              deterministic screening results will appear here instantly.
             </p>
             <Button asChild className="rounded-xl">
               <a href="/jobs">Browse Jobs</a>
@@ -220,28 +278,38 @@ export default function CandidateApplicationsPage() {
                       </h3>
                       <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground font-medium">
                         <span className="flex items-center gap-1">
-                          <Briefcase className="w-3 h-3" /> {app.job?.companyName}
+                          <Briefcase className="w-3 h-3" />{" "}
+                          {app.job?.companyName}
                         </span>
                         <span className="flex items-center gap-1">
                           <MapPin className="w-3 h-3" /> {app.job?.location}
                         </span>
                         <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" /> {new Date(app.createdAt).toLocaleDateString()}
+                          <Clock className="w-3 h-3" />{" "}
+                          {new Date(app.createdAt).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
                       {/* Overall Score */}
-                      <div className={`text-center px-3 py-1.5 rounded-xl border ${app.qualificationScore >= 75 ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-red-500/20 bg-red-500/5'}`}>
-                        <span className="text-xs text-muted-foreground font-semibold block">Score</span>
-                        <span className={`text-lg font-bold ${app.qualificationScore >= 75 ? 'text-emerald-400' : 'text-red-400'}`}>
+                      <div
+                        className={`text-center px-3 py-1.5 rounded-xl border ${app.qualificationScore >= 75 ? "border-emerald-500/20 bg-emerald-500/5" : "border-red-500/20 bg-red-500/5"}`}
+                      >
+                        <span className="text-xs text-muted-foreground font-semibold block">
+                          Score
+                        </span>
+                        <span
+                          className={`text-lg font-bold ${app.qualificationScore >= 75 ? "text-emerald-400" : "text-red-400"}`}
+                        >
                           {app.qualificationScore}%
                         </span>
                       </div>
 
                       {/* Status Badge */}
-                      <Badge className={`${getStatusColor(app.status)} bg-white/[0.04] border border-white/[0.08] text-xs font-semibold px-3 py-1`}>
+                      <Badge
+                        className={`${getStatusColor(app.status)} bg-white/[0.04] border border-white/[0.08] text-xs font-semibold px-3 py-1`}
+                      >
                         {getStatusLabel(app.status)}
                       </Badge>
                     </div>
@@ -251,13 +319,21 @@ export default function CandidateApplicationsPage() {
                   {!isRejected && !isWithdrawn && (
                     <div className="space-y-2 pt-2">
                       <div className="flex justify-between items-center text-xs font-semibold">
-                        <span className="text-muted-foreground">Application Progress</span>
+                        <span className="text-muted-foreground">
+                          Application Progress
+                        </span>
                         <span className={`${getStatusColor(app.status)}`}>
                           {getStatusLabel(app.status)}
                         </span>
                       </div>
                       <div className="flex items-center gap-1">
-                        {["Applied", "Shortlisted", "AI Screening", "Human Round", "Hired"].map((stage, idx) => (
+                        {[
+                          "Applied",
+                          "Shortlisted",
+                          "AI Screening",
+                          "Human Round",
+                          "Hired",
+                        ].map((stage, idx) => (
                           <React.Fragment key={stage}>
                             <div
                               className={`flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold border transition-all ${
@@ -266,10 +342,16 @@ export default function CandidateApplicationsPage() {
                                   : "bg-white/[0.02] border-white/[0.08] text-muted-foreground"
                               }`}
                             >
-                              {idx <= stageIdx ? <CheckCircle2 className="w-3.5 h-3.5" /> : idx + 1}
+                              {idx <= stageIdx ? (
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                              ) : (
+                                idx + 1
+                              )}
                             </div>
                             {idx < 4 && (
-                              <div className={`flex-1 h-0.5 rounded-full ${idx < stageIdx ? 'bg-primary/40' : 'bg-white/[0.06]'}`} />
+                              <div
+                                className={`flex-1 h-0.5 rounded-full ${idx < stageIdx ? "bg-primary/40" : "bg-white/[0.06]"}`}
+                              />
                             )}
                           </React.Fragment>
                         ))}
@@ -284,21 +366,30 @@ export default function CandidateApplicationsPage() {
                         <span>Skills</span>
                         <span>{breakdown.skillScore || 0}%</span>
                       </div>
-                      <Progress value={breakdown.skillScore || 0} className="h-1.5" />
+                      <Progress
+                        value={breakdown.skillScore || 0}
+                        className="h-1.5"
+                      />
                     </div>
                     <div className="space-y-1">
                       <div className="flex justify-between text-xs text-muted-foreground font-semibold">
                         <span>Experience</span>
                         <span>{breakdown.experienceScore || 0}%</span>
                       </div>
-                      <Progress value={breakdown.experienceScore || 0} className="h-1.5" />
+                      <Progress
+                        value={breakdown.experienceScore || 0}
+                        className="h-1.5"
+                      />
                     </div>
                     <div className="space-y-1">
                       <div className="flex justify-between text-xs text-muted-foreground font-semibold">
                         <span>Profile</span>
                         <span>{breakdown.profileScore || 0}%</span>
                       </div>
-                      <Progress value={breakdown.profileScore || 0} className="h-1.5" />
+                      <Progress
+                        value={breakdown.profileScore || 0}
+                        className="h-1.5"
+                      />
                     </div>
                   </div>
 
@@ -310,62 +401,90 @@ export default function CandidateApplicationsPage() {
                           variant="ghost"
                           size="sm"
                           className="rounded-xl text-xs h-8"
-                          onClick={() => setExpandedId(isExpanded ? null : app.id)}
+                          onClick={() =>
+                            setExpandedId(isExpanded ? null : app.id)
+                          }
                         >
                           {isExpanded ? (
-                            <><ChevronUp className="w-3.5 h-3.5 mr-1" /> Hide Feedback</>
+                            <>
+                              <ChevronUp className="w-3.5 h-3.5 mr-1" /> Hide
+                              Feedback
+                            </>
                           ) : (
-                            <><AlertTriangle className="w-3.5 h-3.5 mr-1 text-amber-400" /> View Improvement Tips</>
+                            <>
+                              <AlertTriangle className="w-3.5 h-3.5 mr-1 text-amber-400" />{" "}
+                              View Improvement Tips
+                            </>
                           )}
                         </Button>
                       )}
                     </div>
 
                     {/* Withdraw button */}
-                    {!isRejected && !isWithdrawn && app.status !== "selected" && app.status !== "interview_invited" && app.status !== "human_round_scheduled" && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="rounded-xl text-xs h-8 text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                        onClick={() => handleWithdraw(app.id)}
-                        disabled={withdrawingId === app.id}
-                      >
-                        {withdrawingId === app.id ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : (
-                          <><Undo2 className="w-3.5 h-3.5 mr-1" /> Withdraw</>
-                        )}
-                      </Button>
-                    )}
+                    {!isRejected &&
+                      !isWithdrawn &&
+                      app.status !== "selected" &&
+                      app.status !== "interview_invited" &&
+                      app.status !== "human_round_scheduled" && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="rounded-xl text-xs h-8 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                          onClick={() => handleWithdraw(app.id)}
+                          disabled={withdrawingId === app.id}
+                        >
+                          {withdrawingId === app.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <>
+                              <Undo2 className="w-3.5 h-3.5 mr-1" /> Withdraw
+                            </>
+                          )}
+                        </Button>
+                      )}
                   </div>
 
                   {/* Expanded Rejection Feedback */}
                   {isExpanded && app.rejectionFeedback && (
                     <div className="animate-in slide-in-from-top-2 fade-in duration-300 space-y-3 border border-amber-500/20 bg-amber-500/5 p-4 rounded-xl">
                       <h4 className="text-sm font-bold text-amber-400 flex items-center gap-1.5">
-                        <Sparkles className="w-4 h-4" /> Personalized Improvement Guide
+                        <Sparkles className="w-4 h-4" /> Personalized
+                        Improvement Guide
                       </h4>
 
                       {app.rejectionFeedback.missingSkills?.length > 0 && (
                         <div className="space-y-1.5">
-                          <p className="text-xs font-semibold text-foreground">Missing Skills:</p>
+                          <p className="text-xs font-semibold text-foreground">
+                            Missing Skills:
+                          </p>
                           <div className="flex flex-wrap gap-1.5">
-                            {app.rejectionFeedback.missingSkills.map((skill, idx) => (
-                              <Badge key={idx} variant="outline" className="text-[10px] border-amber-500/20 text-amber-400 bg-amber-500/5">
-                                {skill}
-                              </Badge>
-                            ))}
+                            {app.rejectionFeedback.missingSkills.map(
+                              (skill, idx) => (
+                                <Badge
+                                  key={idx}
+                                  variant="outline"
+                                  className="text-[10px] border-amber-500/20 text-amber-400 bg-amber-500/5"
+                                >
+                                  {skill}
+                                </Badge>
+                              ),
+                            )}
                           </div>
                         </div>
                       )}
 
-                      {app.rejectionFeedback.improvementSuggestions?.length > 0 && (
+                      {app.rejectionFeedback.improvementSuggestions?.length >
+                        0 && (
                         <div className="space-y-1.5">
-                          <p className="text-xs font-semibold text-foreground">Suggestions:</p>
+                          <p className="text-xs font-semibold text-foreground">
+                            Suggestions:
+                          </p>
                           <ul className="list-disc pl-4 space-y-1 text-xs text-muted-foreground">
-                            {app.rejectionFeedback.improvementSuggestions.map((s, idx) => (
-                              <li key={idx}>{s}</li>
-                            ))}
+                            {app.rejectionFeedback.improvementSuggestions.map(
+                              (s, idx) => (
+                                <li key={idx}>{s}</li>
+                              ),
+                            )}
                           </ul>
                         </div>
                       )}

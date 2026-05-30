@@ -158,9 +158,27 @@ export async function searchCandidates({
     // Case-insensitive skill matching
     if (skills && skills.length > 0) {
       const lowerSkills = skills.map((s) => s.toLowerCase());
-      candidates = candidates.filter((c) =>
-        c.skills?.some((skill) => lowerSkills.includes(skill.toLowerCase()))
-      );
+      
+      // Calculate match count for each candidate
+      candidates = candidates.map((c) => {
+        let matchCount = 0;
+        if (c.skills) {
+          matchCount = c.skills.filter((skill) =>
+            lowerSkills.some(
+              (lowerSkill) =>
+                skill.toLowerCase().includes(lowerSkill) ||
+                lowerSkill.includes(skill.toLowerCase())
+            )
+          ).length;
+        }
+        return { ...c, matchCount };
+      });
+
+      // Filter out candidates with 0 matches
+      candidates = candidates.filter((c) => c.matchCount > 0);
+
+      // Sort by matchCount descending (best match first)
+      candidates.sort((a, b) => b.matchCount - a.matchCount);
     }
 
     // Experience matching
@@ -624,4 +642,38 @@ export async function getRecruiterCalls() {
   }
 }
 
+export async function extractSkillsFromJD(jobDescription) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
 
+  const user = await db.user.findUnique({
+    where: { clerkUserId: userId },
+  });
+
+  if (!user || user.role !== "recruiter") {
+    throw new Error("Unauthorized: Recruiter access only");
+  }
+
+  try {
+    const prompt = `
+      Extract a list of core skills and technologies from the following job description.
+      Return ONLY a JSON array of strings, where each string is a skill.
+      Example: ["React", "Node.js", "Python", "Communication"]
+
+      Job Description:
+      ${jobDescription}
+    `;
+
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
+    const match = cleanedText.match(/\[[\s\S]*\]/);
+    if (match) {
+      return JSON.parse(match[0]);
+    }
+    return [];
+  } catch (error) {
+    console.error("Error extracting skills:", error.message);
+    throw new Error("Failed to extract skills");
+  }
+}

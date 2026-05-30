@@ -27,7 +27,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import useFetch from "@/hooks/use-fetch";
-import { searchCandidates, toggleSaveCandidate, getSavedCandidates } from "@/actions/recruiter";
+import { searchCandidates, toggleSaveCandidate, getSavedCandidates, extractSkillsFromJD } from "@/actions/recruiter";
+import { toast } from "sonner";
 
 const CandidateExplorerInner = () => {
   const searchParams = useSearchParams();
@@ -42,6 +43,7 @@ const CandidateExplorerInner = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [jdExpanded, setJdExpanded] = useState(false);
   const [jobDescription, setJobDescription] = useState("");
+  const [extracting, setExtracting] = useState(false);
 
   const {
     data: searchResult,
@@ -59,14 +61,45 @@ const CandidateExplorerInner = () => {
 
   // Sync tab state from query parameter tab=saved
   useEffect(() => {
-    const tabParam = searchParams.get("tab");
-    if (tabParam === "saved") {
+    const tab = searchParams.get("tab");
+    if (tab === "saved") {
       setActiveTab("saved");
-    } else {
-      setActiveTab("explore");
+      fetchSaved();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, [searchParams, fetchSaved]);
+
+  const handleExtractSkills = async () => {
+    if (!jobDescription.trim()) {
+      toast.error("Please enter a job description first.");
+      return;
+    }
+    setExtracting(true);
+    try {
+      const extractedSkills = await extractSkillsFromJD(jobDescription);
+      if (extractedSkills && extractedSkills.length > 0) {
+        const existingSkills = skills.split(",").map(s => s.trim()).filter(Boolean);
+        const newSkills = Array.from(new Set([...existingSkills, ...extractedSkills]));
+        setSkills(newSkills.join(", "));
+        toast.success("Skills extracted successfully!");
+
+        // Auto-trigger search
+        setPage(1);
+        setHasSearched(true);
+        doSearch({
+          skills: newSkills,
+          experience: experience ? parseInt(experience, 10) : undefined,
+          sortBy,
+          page: 1,
+        });
+      } else {
+        toast.info("No skills found in the job description.");
+      }
+    } catch (error) {
+      toast.error("Failed to extract skills.");
+    } finally {
+      setExtracting(false);
+    }
+  };
 
   // Load saved candidates when switcher is on "saved"
   useEffect(() => {
@@ -305,9 +338,14 @@ const CandidateExplorerInner = () => {
                       rows={5}
                       className="flex w-full rounded-[10px] border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-sm shadow-sm backdrop-blur-sm transition-all duration-300 placeholder:text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:border-primary/50 hover:border-white/[0.15] hover:bg-white/[0.06] resize-none"
                     />
-                    <Button variant="outline" size="sm" disabled>
-                      <Sparkles className="h-3 w-3 mr-1.5" />
-                      Extract Skills (Coming Soon)
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      disabled={extracting || !jobDescription.trim()}
+                      onClick={handleExtractSkills}
+                    >
+                      {extracting ? <Loader2 className="h-3 w-3 mr-1.5 animate-spin" /> : <Sparkles className="h-3 w-3 mr-1.5" />}
+                      {extracting ? "Extracting..." : "Extract Skills"}
                     </Button>
                   </div>
                 )}
@@ -388,14 +426,34 @@ const CandidateExplorerInner = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                {allCandidates.map((candidate) => {
+                {allCandidates.map((candidate, index) => {
                   const isSaved = savedIds.has(candidate.id);
+                  const rank = index + 1;
+                  
+                  const getOrdinal = (n) => {
+                    const s = ["th", "st", "nd", "rd"];
+                    const v = n % 100;
+                    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+                  };
+
+                  let badgeColor = "bg-white/[0.04] text-muted-foreground border-white/[0.08]";
+                  if (rank === 1) badgeColor = "bg-amber-400/10 text-amber-400 border-amber-400/30 shadow-[0_0_10px_-2px_rgba(251,191,36,0.3)]";
+                  else if (rank === 2) badgeColor = "bg-slate-300/10 text-slate-300 border-slate-300/30 shadow-[0_0_10px_-2px_rgba(203,213,225,0.3)]";
+                  else if (rank === 3) badgeColor = "bg-orange-400/10 text-orange-400 border-orange-400/30 shadow-[0_0_10px_-2px_rgba(251,146,60,0.3)]";
+
                   return (
                     <Card
                       key={candidate.id}
-                      className="group glass hover-lift card-glow"
+                      className="group glass hover-lift card-glow relative"
                     >
-                      <CardHeader className="pb-3">
+                      {/* Rank Badge */}
+                      {candidate.matchCount !== undefined && (
+                        <div className={`absolute -top-3 -left-3 px-3 py-1.5 rounded-xl border text-xs font-bold font-display ${badgeColor} flex items-center gap-1.5 backdrop-blur-xl z-20`}>
+                          <Sparkles className="h-3.5 w-3.5" />
+                          {getOrdinal(rank)} Match
+                        </div>
+                      )}
+                      <CardHeader className="pb-3 relative">
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3">
                             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border border-white/[0.08]">
