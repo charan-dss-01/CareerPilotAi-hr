@@ -272,7 +272,7 @@ export default function CandidateApplicationsPage() {
                 <CardContent className="p-5 sm:p-6 space-y-4">
                   {/* Top Row: Job info + status + score */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="space-y-1 flex-1">
+                    <div className="space-y-1 flex-1 mt-5">
                       <h3 className="text-lg font-display font-bold tracking-tight text-foreground">
                         {app.job?.title}
                       </h3>
@@ -291,7 +291,7 @@ export default function CandidateApplicationsPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 mt-5">
                       {/* Overall Score */}
                       <div
                         className={`text-center px-3 py-1.5 rounded-xl border ${app.qualificationScore >= 75 ? "border-emerald-500/20 bg-emerald-500/5" : "border-red-500/20 bg-red-500/5"}`}
